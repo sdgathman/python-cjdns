@@ -18,7 +18,7 @@ def makeGraph():
 
     cjdns=admin.connect()
     root=admin.whoami(cjdns)
-    rootIP=root['IP']
+    rootIP=root[b'IP']
 
     G=nx.Graph()
     G.add_node(rootIP[-4:],ip=rootIP)
@@ -29,25 +29,25 @@ def makeGraph():
         parentIP=nodes.popleft()
         resp=cjdns.NodeStore_nodeForAddr(parentIP)
         numLinks=0
-	if 'result' in resp:
-            link=resp['result']
-            if 'linkCount' in link:
-                numLinks=int(resp['result']['linkCount'])
-                G.node[parentIP[-4:]]['version']=resp['result']['protocolVersion']
+        if b'result' in resp:
+            link=resp[b'result']
+            if b'linkCount' in link:
+                numLinks=int(resp[b'result'][b'linkCount'])
+                G.node[parentIP[-4:]][b'version']=resp[b'result'][b'protocolVersion']
 
         for i in range(0,numLinks):
             resp = cjdns.NodeStore_getLink(i, parent=parentIP)
-            childLink=resp['result']
+            childLink=resp[b'result']
             if not childLink: continue
-            childAddr=admin.parseAddr(childLink['child'])
-            childIP=PublicToIp6_convert(childAddr['publicKey'])
+            childAddr=admin.parseAddr(childLink[b'child'])
+            childIP=PublicToIp6_convert(childAddr[b'publicKey'])
             # Check to see if its one hop away from parent node
-            if childLink['isOneHop'] != 1:
+            if childLink[b'isOneHop'] != 1:
                 continue
             # If its a new node then we want to follow it
             if not childIP[-4:] in G.nodes():
                 G.add_node(childIP[-4:],ip=childIP)
-                G.node[childIP[-4:]]['version']=0
+                G.node[childIP[-4:]][b'version']=0
                 nodes.append(childIP)
             # If there is not a link between the nodes we should put one there
             if (not childIP[-4:] in G[parentIP[-4:]]):
