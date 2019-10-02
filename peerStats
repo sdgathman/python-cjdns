@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/python2
 # You may redistribute this program and/or modify it under the terms of
 # the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
@@ -21,7 +21,7 @@ def main():
 
     try:
         opts, args = getopt.getopt(sys.argv[1:], "h" , ["humanreadable", "help"])
-    except getopt.GetoptError, e:
+    except getopt.GetoptError as e:
         print(str(e))
         print()
         usage()
@@ -32,8 +32,6 @@ def main():
         if o == ("--help"):
             usage()
             sys.exit(0)
-
-        
 
     cjdns=at.anonConnect()
     at.peerStats(cjdns,verbose=True,human_readable=human_readable);

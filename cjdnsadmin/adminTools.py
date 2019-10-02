@@ -1,4 +1,3 @@
-#!/usr/bin/env python2
 # You may redistribute this program and/or modify it under the terms of
 # the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
@@ -11,35 +10,37 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import os
 import json
 
 from time import sleep
 
 def anonConnect(ip='127.0.0.1', port=11234):
-    from cjdnsadmin import connect
+    from .cjdnsadmin import connect
     path = os.path.expanduser('~/.cjdnsadmin')
     try:
         with open(path, 'r') as adminInfo:
             data = json.load(adminInfo)
         return connect(data['addr'], data['port'], '')
     except IOError:
+        print('no config')
         return connect(ip, int(port), '')
 
 def connect(ip='127.0.0.1', port=11234, password=''):
-    from cjdnsadmin import connectWithAdminInfo
+    from .cjdnsadmin import connectWithAdminInfo
     return connectWithAdminInfo()
 
 def disconnect(cjdns):
     cjdns.disconnect()
 
 def whoami(cjdns):
-    from publicToIp6 import PublicToIp6_convert;
+    from .publicToIp6 import PublicToIp6_convert
     resp=cjdns.NodeStore_nodeForAddr(0)
-    key=resp['result']['key']
-    ver=resp['result']['protocolVersion']
+    key=resp[b'result'][b'key']
+    ver=resp[b'result'][b'protocolVersion']
     IP=PublicToIp6_convert(key)
-    return {'IP':IP,'key':key,'version':ver}
+    return {'IP':IP,'key':key.decode(),'version':ver.decode()}
 
 def dumpTable(cjdns,verbose=False,unique_ip=False,nodes=[]):
     if nodes == []: nodes=[]
@@ -47,20 +48,21 @@ def dumpTable(cjdns,verbose=False,unique_ip=False,nodes=[]):
     i = 0;
     while True:
         table = cjdns.NodeStore_dumpTable(i)
-        res=table['routingTable']
+        res=table[b'routingTable']
         for t in res:
-            ip=t['ip']
+            ip=t[b'ip']
             if (not ip in nodes) and unique_ip:
                 nodes.append(ip)
                 rt.append(t)
                 if verbose:
-                    print(t['ip'] + ' ' + t['path'] + ' ' + str(t['link']) + ' ' + str(t['version']));
+                    print(t[b'ip'] + ' ' + t[b'path'] + ' ' + str(t[b'link']) + ' ' + str(t[b'version']));
             if not unique_ip:
                 nodes.append(ip)
                 rt.append(t)
                 if verbose:
-                    print(t['ip'] + ' ' + t['path'] + ' ' + str(t['link']) + ' ' + str(t['version']));
-        if not 'more' in table:
+                    print(t[b'ip'].decode() + ' ' + t[b'path'].decode()
+                        + ' ' + str(t[b'link']) + ' ' + str(t[b'version']));
+        if not b'more' in table:
             break
         i += 1
 
@@ -73,13 +75,13 @@ def streamRoutingTable(cjdns, delay=10):
         i = 0
         while True:
             table = cjdns.NodeStore_dumpTable(i)
-            routes = table['routingTable']
+            routes = table[b'routingTable']
             for entry in routes:
-                if entry['ip'] not in known:
-                    known.append(entry['ip'])
+                if entry[b'ip'] not in known:
+                    known.append(entry[b'ip'])
                     yield entry
 
-            if 'more' not in table:
+            if b'more' not in table:
                 break
 
             i += 1
@@ -87,29 +89,29 @@ def streamRoutingTable(cjdns, delay=10):
         sleep(delay)
 
 def parseAddr(addr):
-    tokens = addr.split('.', 5)
+    tokens = addr.split(b'.', 5)
     res = {
-            'version': tokens[0].strip('v'),
-            'switchLabel': '.'.join(tokens[1:5]),
-            'publicKey': tokens[5],
+            b'version': tokens[0].strip(b'v'),
+            b'switchLabel': b'.'.join(tokens[1:5]),
+            b'publicKey': tokens[5],
             }
     return res
 
 def peerStats(cjdns,up=False,verbose=False,human_readable=False):
-    from publicToIp6 import PublicToIp6_convert;
+    from .publicToIp6 import PublicToIp6_convert;
 
     allPeers = []
 
     i = 0;
     while True:
-        ps = cjdns.InterfaceController_peerStats(page=i);
-        peers = ps['peers']
+        ps = cjdns.InterfaceController_peerStats(page=i)
+        peers = ps[b'peers']
         for p in peers:
-            p.update(parseAddr(p['addr']))
-            if p['state'] == 'UNRESPONSIVE' and up:
+            p.update(parseAddr(p[b'addr']))
+            if p[b'state'] == 'UNRESPONSIVE' and up:
                 continue
             allPeers.append(p)
-        if (not 'more' in ps):
+        if (not b'more' in ps):
             break
         i += 1
 
@@ -117,23 +119,26 @@ def peerStats(cjdns,up=False,verbose=False,human_readable=False):
         STAT_FORMAT = '%s\t%s\tv%s\t%s\tin %s\tout %s\t%s\tdup %d los %d oor %d'
 
         for peer in allPeers:
-            ip = PublicToIp6_convert(peer['publicKey'])
+            ip = PublicToIp6_convert(peer[b'publicKey'])
 			
-            b_in  = peer['bytesIn']
-            b_out = peer['bytesOut']
+            b_in  = peer[b'bytesIn']
+            b_out = peer[b'bytesOut']
             if human_readable:
-				b_in  = sizeof_fmt(b_in)
-				b_out = sizeof_fmt(b_out)
+               b_in  = sizeof_fmt(b_in)
+               b_out = sizeof_fmt(b_out)
             
-            p = STAT_FORMAT % (peer['lladdr'], ip, peer['version'], peer['switchLabel'],
-                               str(b_in), str(b_out), peer['state'],
-                               peer['duplicates'], peer['lostPackets'],
-                               peer['receivedOutOfRange'])
+            p = STAT_FORMAT % (peer[b'lladdr'].decode(), ip,
+                               peer[b'version'].decode(),
+                               peer[b'switchLabel'].decode(),
+                               str(b_in), str(b_out),
+                               peer[b'state'].decode(),
+                               peer[b'duplicates'], peer[b'lostPackets'],
+                               peer[b'receivedOutOfRange'])
 
-            if 'user' in peer:
-                p += '\t%r' % peer['user']
+            if b'user' in peer:
+                p += '\t%r' % peer[b'user'].decode()
 
-            print p
+            print(p)
     return allPeers
 
 def sizeof_fmt(num):
