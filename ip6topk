@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 import sys;
 from cjdnsadmin.cjdnsadmin import connectWithAdminInfo;
 
@@ -18,6 +19,6 @@ cjdns = connectWithAdminInfo();
 inputDic = {}
 
 for ip in sys.argv[1:]:
-    inputDic['ip'] = ip
+    inputDic[b'ip'] = ip.encode('ascii')
     outputDic = cjdns.NodeStore_getNode(inputDic)
-    print ip + ' ---> ' + outputDic['result']['key']
+    print(ip + ' ---> ' + outputDic[b'result'][b'key'].decode())

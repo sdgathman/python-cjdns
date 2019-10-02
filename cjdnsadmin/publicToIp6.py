@@ -54,7 +54,7 @@ def Base32_decode(input):
 
 
 def PublicToIp6_convert(pubKey):
-    pubKey = pubKey.encode('ascii')
+    #pubKey = pubKey.encode('ascii')
     if pubKey[-2:] != b'.k':
         raise ValueError("key does not end with .k")
 

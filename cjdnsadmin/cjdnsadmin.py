@@ -257,7 +257,7 @@ def connect(ipAddr, port, password):
         #print('benc=',benc)
         for func in benc[b'availableFunctions']:
             availableFunctions[func] = benc[b'availableFunctions'][func]
-        if (not b'more' in benc):
+        if not b'more' in benc:
             break
         page = page+1
 

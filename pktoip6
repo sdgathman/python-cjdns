@@ -16,5 +16,5 @@ import sys;
 from cjdnsadmin.publicToIp6 import PublicToIp6_convert;
 
 for key in sys.argv[1:]:
-    ip6 = PublicToIp6_convert(key)
+    ip6 = PublicToIp6_convert(key.encode('ascii'))
     print(key + ' ---> ' + ip6)

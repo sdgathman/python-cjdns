@@ -11,6 +11,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+from __future__ import print_function
 from cjdnsadmin.cjdnsadmin import connectWithAdminInfo;
 from cjdnsadmin.publicToIp6 import PublicToIp6_convert;
 
@@ -18,29 +19,30 @@ cjdns = connectWithAdminInfo();
 
 def getLink(node, num, nodes, spaces, parentPath):
     resp = cjdns.NodeStore_getLink(node, num);
-    getNode(resp['result'], resp['result']['cannonicalLabel'], nodes, spaces + '  ', parentPath);
+    getNode(resp[b'result'], resp[b'result'][b'cannonicalLabel'], nodes, spaces + '  ', parentPath);
 
 def getNode(next, path, nodes, spaces, parentPath):
-    if (next['child'] in nodes): return;
+    if (next[b'child'] in nodes): return;
     #nodes = list(nodes);
-    nodes.append(next['child']);
-    resp = cjdns.NodeStore_getNode(next['child']);
+    nodes.append(next[b'child']);
+    resp = cjdns.NodeStore_getNode(next[b'child']);
     #print 'cjdns.NodeStore_getNode(' + next['child'] + '); --> ' + str(resp);
     #next['child'] = PublicToIp6_convert(resp['result']['key']);
-    path = '';
+    path = b''
     if (parentPath != 'ffff.ffff.ffff.ffff' and len(parentPath) == 19):
-        path = cjdns.NodeStore_getRouteLabel(parentPath, next['child']);
-        if path['error'] != 'none':
-            path = path['error'] + '  ' + str(nodes);
-            print 'cjdns.NodeStore_getRouteLabel(' + parentPath + ', ' + next['child'] + '); --> ' + path;
+        path = cjdns.NodeStore_getRouteLabel(parentPath, next[b'child']);
+        if path[b'error'] != b'none':
+            path = path[b'error'].decode() + '  ' + str(nodes);
+            print('cjdns.NodeStore_getRouteLabel(' + parentPath + ',',
+                next[b'child'].decode() + '); --> ' + path)
             exit(1);
-        else: path = path['result'];
-    print spaces + str(next['child']) + '  ' + str(next['cannonicalLabel']) + " -> " + path;
+        else: path = path[b'result']
+    print(spaces + str(next[b'child']) + '  ' + str(next[b'cannonicalLabel']) + " -> " + path.decode())
     #print str(resp['result']) + ',';
-    for i in range(0, int(resp['result']['linkCount'])):
-        getLink(next['child'], i, nodes, spaces, path);
+    for i in range(0, int(resp[b'result'][b'linkCount'])):
+        getLink(next[b'child'], i, nodes, spaces, path);
 
 
 resp = cjdns.NodeStore_getNode(0);
-myIp6 = PublicToIp6_convert(resp['result']['key']);
-getNode({"child":myIp6,"cannonicalLabel":""}, '', [], '', '0000.0000.0000.0001');
+myIp6 = PublicToIp6_convert(resp[b'result'][b'key'])
+getNode({b'child':myIp6,b'cannonicalLabel':b''}, b'', [], b'', b'0000.0000.0000.0001')
