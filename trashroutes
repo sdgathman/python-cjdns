@@ -46,9 +46,9 @@ def parseRoute(path):
 i = 0;
 while True:
     table = cjdns.NodeStore_dumpTable(i);
-    routes = table['routingTable'];
+    routes = table[b'routingTable'];
     allRoutes += routes;
-    if (not 'more' in table):
+    if not b'more' in table:
         break;
     i += 1;
 
@@ -60,8 +60,8 @@ def getValue(node):
 # get only the routes which will actually be user
 ar = {};
 for route in allRoutes:
-    if route['ip'] not in ar or getValue(route) > getValue(ar[route['ip']]):
-        ar[route['ip']] = route;
+    if route[b'ip'] not in ar or getValue(route) > getValue(ar[route[b'ip']]):
+        ar[route[b'ip']] = route;
 allRoutes = [];
 for k in ar.keys():
     allRoutes.append(ar[k]);
@@ -69,8 +69,8 @@ for k in ar.keys():
 
 # get the actual arrays of interface indexes representing the path
 for route in allRoutes:
-    path = int(route['path'].replace(".", ""), 16);
-    route['r'] = parseRoute(path);
+    path = int(route[b'path'].replace(b'.', b''), 16);
+    route[b'r'] = parseRoute(path);
 
 
 
@@ -79,12 +79,12 @@ lengthSum = 0;
 
 
 for route in allRoutes:
-    r = route['r'];
+    r = route[b'r'];
     penalty = 0;
     for i in range(1,len(r)):
         penalize = True;
         for routeB in allRoutes:
-            rb = routeB['r'];
+            rb = routeB[b'r'];
             if len(rb) < i or rb == r: continue;
             for j in range(0,i+1):
                 if (rb[j] != r[j]): break;
@@ -93,7 +93,7 @@ for route in allRoutes:
         if penalize: penalty += 1;
         penalty <<= 1;
 
-    output = str(penalty) + '\t' + route['ip'] + '@' + route['path'] + '  ' + str(r);
+    output = str(penalty) + '\t' + route[b'ip'].decode() + '@' + route[b'path'].decode() + '  ' + str(r);
     if (r[-1] == -1): output += ' INVALID';
     print(output);
     penaltySum += penalty;
