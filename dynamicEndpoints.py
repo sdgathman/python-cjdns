@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 """
 dynamicEndpoints.py: make cjdns reliably connect to remote nodes with dynamic IP
 addresses, identified by a DNS name.

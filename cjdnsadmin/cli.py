@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # You may redistribute this program and/or modify it under the terms of
 # the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
@@ -14,7 +14,7 @@
 from __future__ import print_function
 import sys
 import os
-import cjdnsadmin
+from cjdnsadmin import cjdnsadmin
 import json
 import getopt
 import string
@@ -46,10 +46,8 @@ def parse(args):
     usage()
     sys.exit(2)
 
-
-if __name__ == "__main__":
-
-  options, remainder = parse(sys.argv[1:])
+def main(argv):
+  options, remainder = parse(argv)
   transform = lambda s: s
   connect = lambda : cjdnsadmin.connectWithAdminInfo()
 
@@ -63,9 +61,15 @@ if __name__ == "__main__":
       transform = lambda s: json.dumps(s, sort_keys=True, indent=4, separators=(',', ': '))
 
   if remainder:
-    s = connect()
-    result = eval('s.' + string.join(remainder," "))
+    try:
+      s = connect()
+    except FileNotFoundError: sys.exit(1)
+    result = eval('s.' + ''.join(remainder))
     if result:
       print(transform(result))
   else:
     usage()
+  return 0
+
+if __name__ == "__main__":
+  sys.exit(main(sys.argv[1:]))

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # You may redistribute this program and/or modify it under the terms of
 # the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
@@ -19,4 +19,4 @@ from networkx.readwrite import json_graph
 G=graph.makeGraph()
 d=json_graph.node_link_data(G)
 
-print json.dumps(d,sort_keys=True,indent=4,separators=(',', ': '))
+print(json.dumps(d,sort_keys=True,indent=4,separators=(',', ': ')))

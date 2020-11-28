@@ -20,7 +20,7 @@ try:
     cjdns = connectWithAdminInfo()
 except FileNotFoundError as x:
     import sys
-    sys.exit(2)
+    sys.exit(1)
 
 try:
     for node in streamRoutingTable(cjdns):

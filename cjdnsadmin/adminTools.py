@@ -23,8 +23,8 @@ def anonConnect(ip='127.0.0.1', port=11234):
         with open(path, 'r') as adminInfo:
             data = json.load(adminInfo)
         return connect(data['addr'], data['port'], '')
-    except IOError:
-        print('no config')
+    except FileNotFoundError:
+        print('config file not found: %s'%path)
         return connect(ip, int(port), '')
 
 def connect(ip='127.0.0.1', port=11234, password=''):
