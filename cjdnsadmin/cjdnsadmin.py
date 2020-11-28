@@ -327,17 +327,17 @@ def connectWithAdminInfo(path = None):
     try:
         with open(path, 'rb') as adminInfo:
             data = json.load(adminInfo)
-    except IOError:
-        sys.stderr.write("""Please create a file named .cjdnsadmin in your
-home directory with
+    except FileNotFoundError:
+        sys.stderr.write("""%s: not found
+Please create a file named .cjdnsadmin in your home directory with
 ip, port, and password of your cjdns engine in json.
 for example:
 {
     "addr": "127.0.0.1",
     "port": 11234,
-    "password": "You tell me! (Search in ~/cjdroute.conf)"
+    "password": "You tell me! (Search in /etc/cjdroute.conf)"
 }
-""")
+"""%path)
         raise
 
     return connect(data['addr'], data['port'], data['password'])

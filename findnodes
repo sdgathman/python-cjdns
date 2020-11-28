@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/python3
 # You may redistribute this program and/or modify it under the terms of
 # the GNU General Public License as published by the Free Software Foundation,
 # either version 3 of the License, or (at your option) any later version.
@@ -16,7 +16,11 @@ from cjdnsadmin.cjdnsadmin import connectWithAdminInfo,tostr
 from cjdnsadmin.adminTools import streamRoutingTable
 import json
 
-cjdns = connectWithAdminInfo()
+try:
+    cjdns = connectWithAdminInfo()
+except FileNotFoundError as x:
+    import sys
+    sys.exit(2)
 
 try:
     for node in streamRoutingTable(cjdns):
