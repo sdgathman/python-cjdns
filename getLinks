@@ -25,24 +25,24 @@ def getNode(next, path, nodes, spaces, parentPath):
     if (next[b'child'] in nodes): return;
     #nodes = list(nodes);
     nodes.append(next[b'child']);
-    resp = cjdns.NodeStore_getNode(next[b'child']);
+    resp = cjdns.NodeStore_nodeForAddr(next[b'child']);
     #print 'cjdns.NodeStore_getNode(' + next['child'] + '); --> ' + str(resp);
     #next['child'] = PublicToIp6_convert(resp['result']['key']);
     path = b''
-    if (parentPath != 'ffff.ffff.ffff.ffff' and len(parentPath) == 19):
-        path = cjdns.NodeStore_getRouteLabel(parentPath, next[b'child']);
-        if path[b'error'] != b'none':
-            path = path[b'error'].decode() + '  ' + str(nodes);
-            print('cjdns.NodeStore_getRouteLabel(' + parentPath + ',',
+    if (parentPath != b'ffff.ffff.ffff.ffff' and len(parentPath) == 19):
+        p = cjdns.NodeStore_getRouteLabel(parentPath, next[b'child']);
+        if p[b'error'] != b'none':
+            path = p[b'error'].decode()+'  '+str([s.decode() for s in nodes]);
+            print('cjdns.NodeStore_getRouteLabel(' + parentPath.decode() + ',',
                 next[b'child'].decode() + '); --> ' + path)
             exit(1);
-        else: path = path[b'result']
+        else: path = p[b'result']
     print(spaces + str(next[b'child']) + '  ' + str(next[b'cannonicalLabel']) + " -> " + path.decode())
     #print str(resp['result']) + ',';
     for i in range(0, int(resp[b'result'][b'linkCount'])):
         getLink(next[b'child'], i, nodes, spaces, path);
 
 
-resp = cjdns.NodeStore_getNode(0);
+resp = cjdns.NodeStore_nodeForAddr(0);
 myIp6 = PublicToIp6_convert(resp[b'result'][b'key'])
-getNode({b'child':myIp6,b'cannonicalLabel':b''}, b'', [], b'', b'0000.0000.0000.0001')
+getNode({b'child':myIp6.encode(),b'cannonicalLabel':b''}, b'', [], '', b'0000.0000.0000.0001')

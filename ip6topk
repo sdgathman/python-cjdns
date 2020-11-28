@@ -22,5 +22,5 @@ inputDic = {}
 
 for ip in sys.argv[1:]:
     inputDic[b'ip'] = ip.encode('ascii')
-    outputDic = cjdns.NodeStore_getNode(inputDic)
+    outputDic = cjdns.NodeStore_nodeForAddr(inputDic)
     print(ip + ' ---> ' + outputDic[b'result'][b'key'].decode())
