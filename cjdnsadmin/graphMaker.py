@@ -11,14 +11,14 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 def makeGraph():
-    import adminTools as admin
+    import cjdnsadmin.adminTools as admin
     import networkx as nx
-    from publicToIp6 import PublicToIp6_convert
+    from cjdnsadmin.publicToIp6 import PublicToIp6_convert
     from collections import deque
 
     cjdns=admin.connect()
     root=admin.whoami(cjdns)
-    rootIP=root[b'IP']
+    rootIP=root['IP']
 
     G=nx.Graph()
     G.add_node(rootIP[-4:],ip=rootIP)
@@ -33,7 +33,7 @@ def makeGraph():
             link=resp[b'result']
             if b'linkCount' in link:
                 numLinks=int(resp[b'result'][b'linkCount'])
-                G.node[parentIP[-4:]][b'version']=resp[b'result'][b'protocolVersion']
+                G.nodes[parentIP[-4:]]['version']=resp[b'result'][b'protocolVersion']
 
         for i in range(0,numLinks):
             resp = cjdns.NodeStore_getLink(i, parent=parentIP)
@@ -47,7 +47,7 @@ def makeGraph():
             # If its a new node then we want to follow it
             if not childIP[-4:] in G.nodes():
                 G.add_node(childIP[-4:],ip=childIP)
-                G.node[childIP[-4:]][b'version']=0
+                G.nodes[childIP[-4:]]['version']=0
                 nodes.append(childIP)
             # If there is not a link between the nodes we should put one there
             if (not childIP[-4:] in G[parentIP[-4:]]):

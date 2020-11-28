@@ -40,7 +40,7 @@ def whoami(cjdns):
     key=resp[b'result'][b'key']
     ver=resp[b'result'][b'protocolVersion']
     IP=PublicToIp6_convert(key)
-    return {'IP':IP,'key':key.decode(),'version':ver.decode()}
+    return {'IP':IP,'key':key.decode(),'version':ver}
 
 def dumpTable(cjdns,verbose=False,unique_ip=False,nodes=[]):
     if nodes == []: nodes=[]

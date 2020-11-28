@@ -204,6 +204,7 @@ def _functionFabric(func_name, argList, oargs, oargNames, password):
                 print("warning: extraneous argument passed to function",func_name,value)
 
         for (key, value) in kwargs.items():
+            key = key.encode()
             if key not in oargs:
                 if key in argList:
                     # this is a positional argument, given a keyword name
@@ -234,7 +235,7 @@ def connect(ipAddr, port, password):
 
     if sys.version_info[0] >= 3:
       password = password.encode('ascii')
-    print('connect:',ipAddr,port,password)
+    #print('connect:',ipAddr,port,password)
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     sock.connect((ipAddr, port))
     sock.settimeout(2)
